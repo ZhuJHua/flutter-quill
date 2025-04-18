@@ -5,7 +5,6 @@ import 'package:meta/meta.dart';
 import '../../quill_delta.dart';
 import '../common/structs/offset_value.dart';
 import '../common/structs/segment_leaf_node.dart';
-
 import '../editor/config/search_config.dart';
 import '../editor/embed/embed_editor_builder.dart';
 import '../rules/rule.dart';
@@ -548,10 +547,22 @@ class Document {
   String toPlainText([
     Iterable<EmbedBuilder>? embedBuilders,
     EmbedBuilder? unknownEmbedBuilder,
-  ]) =>
-      cachedPlainText ??= _root.children
-          .map((e) => e.toPlainText(embedBuilders, unknownEmbedBuilder))
-          .join();
+    useCache = true,
+  ]) {
+    if (useCache && cachedPlainText != null) {
+      return cachedPlainText!;
+    }
+
+    final plainText = _root.children
+        .map((e) => e.toPlainText(embedBuilders, unknownEmbedBuilder))
+        .join();
+
+    if (useCache) {
+      cachedPlainText = plainText;
+    }
+
+    return plainText;
+  }
 
   @visibleForTesting
   @internal
